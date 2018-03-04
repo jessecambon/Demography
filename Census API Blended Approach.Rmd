@@ -1,0 +1,70 @@
+---
+title: "R Census Blended Approach"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
+
+```{r}
+library(tidycensus)
+library(tidyverse)
+library(tigris)
+library(sf)
+library(mapview)
+library(censusapi)
+options(tigris_class = "sf")
+options(tigris_use_cache = TRUE)
+```
+
+
+```{r}
+
+# B19013_001 - median household income in past 12 months inflation adj
+# B25104_001E - monthly housing costs
+# B01003_001E - total population
+
+# ACS with geometry
+#
+acs1_geo <- get_acs(geography = 'county', 
+              variables = c("B01003_001E") ,
+              state = "KY", 
+              geometry = TRUE,survey='acs5',year=2015,keep_geo_vars=TRUE)
+
+# looks like acs1 only covers more urban areas in KY,
+# acs5 is comprehensive
+
+```
+
+
+```{r}
+## Census API 
+# this will not have geometries so we can join 
+# with the prior ACS data to get that
+#pop_vars <- listCensusMetadata("pep/population", vintage = 2016,type='v')
+#pop_g <- listCensusMetadata("pep/population", vintage = 2016,type='g')
+
+pep_pop <- getCensus("pep/population", 
+    vintage = 2015, 
+    region = "county", 
+    regionin="state:21",
+    vars = c("GEONAME", "SUMLEV","POP", "DENSITY"))
+```
+
+
+```{r}
+# Merge datasets and check population differences
+blend_1 <- left_join(acs1_geo,pep_pop,by=c("COUNTYFP" = "county"))
+blend_1$POP <- as.numeric(blend_1$POP) # convert to numeric
+blend_1$DENSITY <- as.numeric(blend_1$DENSITY) # convert to numeric
+blend_1$pop_diff <- blend_1$POP - blend_1$estimate
+
+# View a subset of our master file for spotchecking
+blend_disp <- select(blend_1,c(NAME.x,POP,DENSITY,estimate,pop_diff))
+View(blend_disp)
+```
+```{r}
+mapview(blend_1, zcol = "DENSITY", legend = TRUE)
+```
+
