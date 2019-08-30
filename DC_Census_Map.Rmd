@@ -1,0 +1,76 @@
+---
+title: "DC Census Map"
+output: html_notebook
+---
+
+
+Create an interactive map of DC using Census data. Note that you will need to setup a Census API to run this code.
+
+```{r}
+library(tigris)
+library(sf)
+library(tidyverse)
+library(tidycensus)
+library(mapview)
+options(tigris_class = "sf")
+options(tigris_use_cache = TRUE)
+
+# function from https://walkerke.github.io/2017/05/tigris-metros/
+metro_tracts <- function(metro_name) {
+  # First, identify which states intersect the metro area using the
+  # `states` function in tigris
+  st <- states(cb = TRUE)
+  cb <- core_based_statistical_areas(cb = TRUE)
+  metro <- filter(cb, grepl(metro_name, NAME))
+  
+  stcodes <- st[metro,]$STATEFP
+  
+  # Then, fetch the tracts, using rbind_tigris if there is more
+  # than one state
+  if (length(stcodes) > 1) {
+    tr <- rbind_tigris(
+      map(stcodes, function(x) {
+        tracts(x, cb = TRUE)
+      })
+    )
+  } else {
+    tr <- tracts(x, cb = TRUE)
+  }
+  
+  # Now, find out which tracts are within the metro area
+  within <- st_within(tr, metro)
+  
+  within_lgl <- map_lgl(within, function(x) {
+    if (length(x) == 1) {
+      return(TRUE)
+    } else {
+      return(FALSE)
+    }
+  })
+  
+  # Finally, subset and return the output
+  output <- tr[within_lgl,]
+  return(output)
+  
+}
+
+dc_tracts <- metro_tracts('Washington-Arlington-Alexandria')
+
+# Pull tract data for all states in the DC metro area
+tract_acs <- get_acs(geography = "tract", 
+              variables = c(medincome = "B19013_001"), 
+              state = unique(dc_tracts$STATEFP))
+
+# limit data to DC tracts
+combi_dc <- dc_tracts %>% inner_join(tract_acs,by='GEOID')
+
+# Plot map
+map_dc <- mapview(combi_dc, zcol = "estimate", legend = TRUE,layer.name = 'Median Household Income')
+
+# Save map
+mapshot(map_dc, "dc_income_map.html")
+
+# View map in RStudio
+map_dc
+```
+
