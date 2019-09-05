@@ -1,0 +1,47 @@
+---
+title: "Migration Map"
+output: html_vignette
+---
+
+This code creates an interactive net migration map based on this code:
+https://walkerke.github.io/tidycensus/articles/other-datasets.html
+
+```{r}
+library(tidycensus)
+library(tidyverse)
+options(tigris_use_cache = TRUE)
+library(mapview)
+
+us_components <- get_estimates(geography = "state", product = "components")
+
+
+net_migration <- get_estimates(geography = "county",
+                               variables = "RNETMIG",
+                               geometry = TRUE,
+                               shift_geo = FALSE)
+
+
+order = c("-15 and below", "-15 to -5", "-5 to +5", "+5 to +15", "+15 and up")
+
+net_migration <- net_migration %>%
+  mutate(groups = case_when(
+    value > 15 ~ "+15 and up",
+    value > 5 ~ "+5 to +15",
+    value > -5 ~ "-5 to +5",
+    value > -15 ~ "-15 to -5",
+    TRUE ~ "-15 and below"
+  )) %>%
+  mutate(groups = factor(groups, levels = order))
+
+
+
+# Plot map
+migration_map <- mapview(net_migration, zcol = "groups", legend = TRUE,layer.name = 'Net Migration per 1000 Residents',alpha.regions=0.5)
+
+mapshot(migration_map, "US Migration Map.html")
+
+migration_map
+
+
+```
+
