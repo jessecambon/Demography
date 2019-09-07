@@ -1,0 +1,52 @@
+---
+title: "Make Marker Label Map"
+output: html_vignette
+---
+
+An example of geolocating addresses and plotting them on an interactive map
+
+```{r}
+library(tidyverse)
+library(mapview)
+library(tmaptools)
+library(sf)
+
+# Some addresses to try to geolocate
+locations <- tibble(address=c('The Pentagon Washington, DC', 'Eiffel Tower, Paris','1600 Pennsylvania Ave, Washington, DC', 'Statue of Liberty', 'Old North Church, Boston, MA', 'Washington Monument, Washington, DC','The Grand Canyon','The Colosseum, Rome, Italy','The Capitol, Washington, DC'))
+
+# Function for obtaining lat/long from an address (as a tibble)
+addr_to_latlng <- function(address){
+  coords = unname(geocode_OSM(address)$coords)
+  # flip coordinates to output lat,lng
+  if (!is.null(coords)) { tibble(lat=coords[2],lng=coords[1]) }
+    else { tibble(lat=numeric(),lng=numeric()) }
+}
+
+# Geolocate addresses
+locations_geo <- locations %>%
+  mutate(latlng = map(address,addr_to_latlng)) %>%
+  unnest(latlng)
+
+```
+
+Now let's plot them on a map
+
+```{r}
+library(leaflet)
+library(htmlwidgets)
+#library(htmltools)
+
+# Create a geographic clustered marker map
+map <- leaflet(locations_geo) %>%
+  addTiles() %>%
+  addMarkers(clusterOptions = markerClusterOptions()) %>% # cluster the markers
+  addProviderTiles(providers$OpenStreetMap) %>% # background
+  addMarkers(popup = ~as.character(address)) 
+  #addLabelOnlyMarkers(~lng,~lat,label = ~as.character(address))
+
+map
+
+# Save our map to a file
+saveWidget(map,file='marker_map.html')
+```
+
