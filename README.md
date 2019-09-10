@@ -1,5 +1,5 @@
 # Demography Sandbox
-Experimenting with public data
+Demographic data analysis and related tools
 
 ## Table of Contents 
 * [Geolocation and Plotting](Population%20Marker%20Map.Rmd) - Geolocating addresses and then plotting the addresses on an interactive leaflet map.
