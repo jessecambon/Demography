@@ -78,6 +78,7 @@ census_latlng <- function(address,benchmark=4,verbose=FALSE){
       tibble(lat=numeric(),lng=numeric()) }
 }
 
+
 test_census <- test_addresses %>% 
   mutate(latlng = map(addr,census_latlng,verbose=TRUE)) %>% 
   unnest(latlng,keep_empty=TRUE)
@@ -86,6 +87,26 @@ test_census <- test_addresses %>%
 #b <- census_latlng("Wrong Address")
 
 ```
+
+## Wrapper
+
+```{r}
+census_wrapper <- function(df,address) {
+  
+  address <- enquo(address)
+  
+  df %>% 
+  mutate(latlng = map(!!address,census_latlng,verbose=TRUE)) %>% 
+  unnest(latlng,keep_empty=TRUE)
+}
+
+test_wrapper <- test_addresses %>% 
+  census_wrapper(.,addr)
+
+```
+
+
+
 
 ## Cascade
 
