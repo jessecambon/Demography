@@ -91,17 +91,17 @@ test_census <- test_addresses %>%
 ## Wrapper
 
 ```{r}
-census_wrapper <- function(df,address) {
+census_wrapper <- function(.tbl,address) {
   
   address <- enquo(address)
   
-  df %>% 
+  .tbl %>% 
   mutate(latlng = map(!!address,census_latlng,verbose=TRUE)) %>% 
   unnest(latlng,keep_empty=TRUE)
 }
 
 test_wrapper <- test_addresses %>% 
-  census_wrapper(.,addr)
+  census_wrapper(addr)
 
 ```
 
