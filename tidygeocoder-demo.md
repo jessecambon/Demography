@@ -43,14 +43,13 @@ Plot our points on our DC map
 library(ggplot2)
 library(ggrepel)
   
-OpenStreetMap::autoplot.OpenStreetMap(dc_map.latlng) +
+autoplot(dc_map.latlng) +
   theme_bw() +
   theme(title = element_blank(),
         line=element_blank()) +
-  geom_point(data=coordinates, aes(x=long, y=lat), color="blue", size=4, alpha=1) +
+  geom_point(data=coordinates, aes(x=long, y=lat), color="navy", size=4, alpha=1) +
   geom_label_repel(data=coordinates,
-        aes(label=name,x=long, y=lat),show.legend=F,box.padding=.5) +
-  xlab("Long") + ylab("Lat")
+        aes(label=name,x=long, y=lat),show.legend=F,box.padding=.5)
 ```
 
 ![](tidygeocoder-demo_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
