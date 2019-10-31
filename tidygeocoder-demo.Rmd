@@ -41,7 +41,7 @@ dc_map.latlng <- openproj(dc_map)
 
 Plot our points on our DC map
 
-```{r,fig.width=12,fig.height=8}
+```{r,fig.width=12,fig.height=12}
 library(ggplot2)
 library(ggrepel)
   
