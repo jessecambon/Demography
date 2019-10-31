@@ -1,6 +1,8 @@
 tidygeocoder demo
 ================
 
+Geocode some addresses in DC with tidygeocoder
+
 ``` r
 library(dplyr)
 library(tidygeocoder)
@@ -19,22 +21,20 @@ coordinates <- dc_addresses %>%
   tidygeocoder::geocode(addr)
 ```
 
-Reference:
-<https://www.linkedin.com/pulse/plot-over-openstreetmap-ggplot2-abel-tortosa-andreu/>
+References:
 
-Pull OSM map data for DC. Use coordinates pulled from the OSM map web
-gui
+  - <https://www.linkedin.com/pulse/plot-over-openstreetmap-ggplot2-abel-tortosa-andreu/>
+  - <https://www.openstreetmap.org/export#map=14/38.8982/-77.0251>
+
+Pull OSM map data for DC. Use coordinates pulled from the
+openstreemap.org GUI (click export button)
 
 ``` r
 library(OpenStreetMap)
 
-# Use this map to pick coordinates for open_map
-# https://www.openstreetmap.org/export#map=14/38.8982/-77.0251  
-
 # Get DC Map
 dc_map <- openmap( c(38.905,-77.05),c(38.885,-77.00))
 dc_map.latlng <- openproj(dc_map)
-#dc_map.latlng <- openproj(dc_map, projection = "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs")
 ```
 
 Plot our points on our DC map
@@ -43,11 +43,14 @@ Plot our points on our DC map
 library(ggplot2)
 library(ggrepel)
   
-autoplot(dc_map.latlng) +
-  geom_point(data=coordinates, aes(x=long, y=lat), color="blue", size=3, alpha=1) +
+OpenStreetMap::autoplot.OpenStreetMap(dc_map.latlng) +
+  theme_bw() +
+  theme(title = element_blank(),
+        line=element_blank()) +
+  geom_point(data=coordinates, aes(x=long, y=lat), color="blue", size=4, alpha=1) +
   geom_label_repel(data=coordinates,
         aes(label=name,x=long, y=lat),show.legend=F,box.padding=.5) +
-  xlab("long") + ylab("lat")
+  xlab("Long") + ylab("Lat")
 ```
 
 ![](tidygeocoder-demo_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
