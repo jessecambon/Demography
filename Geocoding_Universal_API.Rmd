@@ -59,8 +59,22 @@ Based off code from: https://andrewpwheeler.wordpress.com/2017/08/03/geocoding-w
 Census Geocoder Documentation: https://www.census.gov/data/developers/data-sets/Geocoding-services.html
 
 ```{r}
+
+test <- function(var=default) {
+  var <- enquo(var)
+  
+  mtcars %>% mutate(!!var:='test')
+}
+
+test()
+
+
+
 # return lat lng using census geocoder api
-census_latlng <- function(address,benchmark=4,verbose=FALSE){
+census_latlng <- function(address,benchmark=4,verbose=FALSE,latitude=lat,longitude=lng){
+  latitude <- quo(latitude)
+  longitude <- quo(longitude)
+  
     if (verbose == TRUE) {
       print(address)
     }
@@ -73,11 +87,31 @@ census_latlng <- function(address,benchmark=4,verbose=FALSE){
 
     # Return lat/lng in tibble form
     if (!is.null(coords)) { 
-      tibble(lat=coords$y[1],lng=coords$x[1]) }
+      tibble(!!latitude:=coords$y[1],!!longitude:=coords$x[1]) }
     else { 
-      tibble(lat=numeric(),lng=numeric()) }
+      tibble(!!latitude:=numeric(),!!longitude:=numeric()) }
 }
 
+
+census_wrapper <- function(.tbl,address) {
+  address=enquo(address)
+  
+  coords <- tibble(temp=map(.tbl %>% pull(!!address),census_latlng,verbose=TRUE)) %>%
+  unnest(temp,keep_empty=TRUE)
+  
+  .tbl %>% bind_cols(coords)
+}
+
+census_geolocated <- test_addresses %>% census_wrapper(addr)
+
+
+a <- census_latlng('1600 Pennsylvania Ave Washington, DC')
+
+
+b <- tibble(temp=map(test_addresses %>% pull(addr),census_latlng,verbose=TRUE)) %>%
+  unnest(temp,keep_empty=TRUE)
+
+combi <- test_addresses %>% bind_cols(b)
 
 test_census <- test_addresses %>% 
   mutate(latlng = map(addr,census_latlng,verbose=TRUE)) %>% 
