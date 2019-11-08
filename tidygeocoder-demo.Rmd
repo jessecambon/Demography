@@ -3,7 +3,7 @@ title: "tidygeocoder demo"
 output: github_document
 ---
 
-Geocode some addresses in DC with tidygeocoder
+In honor of the recent Washington Nationals World Series win, we will geocode some addresses in Washington, DC with the tidygeocoder package. 
 
 ```{r,warning=F,message=F}
 library(dplyr)
@@ -23,10 +23,12 @@ coordinates <- dc_addresses %>%
   tidygeocoder::geocode(addr)
 ```
 
-References:
+```{r}
+library(knitr)
+kable(coordinates)
+```
 
-* https://www.linkedin.com/pulse/plot-over-openstreetmap-ggplot2-abel-tortosa-andreu/
-* https://www.openstreetmap.org/export#map=14/38.8982/-77.0251  
+
 
 Pull OSM map data for DC. Use coordinates pulled from the openstreemap.org GUI (click export button)
 
@@ -41,23 +43,16 @@ dc_map.latlng <- openproj(dc_map)
 
 Plot our points on our DC map
 
-```{r,fig.width=15,fig.height=6}
+```{r,fig.width=10,fig.height=4}
 library(ggplot2)
 library(ggrepel)
-  
 autoplot(dc_map.latlng) +
-  theme_bw() +
-  theme(axis.line = element_blank(),
-              axis.ticks=element_blank(),
+  theme_minimal() +
+  theme(      axis.text.y=element_blank(),
               axis.title=element_blank(),
-              axis.text.y=element_blank(),
               axis.text.x=element_blank(),
-              panel.border = element_blank(),
-              panel.grid.major = element_blank(),
-              panel.grid.minor = element_blank(),
-              panel.background = element_rect(fill = "white"),
-              plot.margin = unit(c(-8, -1, -8, -1), "cm"),
-              legend.position = "none") +
+              plot.margin = unit(c(0, 0, 0, 0), "cm")
+              ) +
   geom_point(data=coordinates, aes(x=long, y=lat), color="navy", size=4, alpha=1) +
   geom_label_repel(data=coordinates,
         aes(label=name,x=long, y=lat),show.legend=F,box.padding=.5)

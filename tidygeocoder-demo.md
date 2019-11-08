@@ -1,7 +1,8 @@
 tidygeocoder demo
 ================
 
-Geocode some addresses in DC with tidygeocoder
+In honor of the recent Washington Nationals World Series win, we will
+geocode some addresses in Washington, DC with the tidygeocoder package.
 
 ``` r
 library(dplyr)
@@ -21,10 +22,18 @@ coordinates <- dc_addresses %>%
   tidygeocoder::geocode(addr)
 ```
 
-References:
+``` r
+library(knitr)
+kable(coordinates)
+```
 
-  - <https://www.linkedin.com/pulse/plot-over-openstreetmap-ggplot2-abel-tortosa-andreu/>
-  - <https://www.openstreetmap.org/export#map=14/38.8982/-77.0251>
+| name                         | addr                                           |      lat |       long |
+| :--------------------------- | :--------------------------------------------- | -------: | ---------: |
+| White House                  | 1600 Pennsylvania Ave Washington, DC           | 38.89875 | \-77.03535 |
+| National Academy of Sciences | 2101 Constitution Ave NW, Washington, DC 20418 | 38.89211 | \-77.04678 |
+| Department of Justice        | 950 Pennsylvania Ave NW, Washington, DC 20530  | 38.89416 | \-77.02501 |
+| Supreme Court                | 1 1st St NE, Washington, DC 20543              | 38.88990 | \-77.00591 |
+| Washington Monument          | 2 15th St NW, Washington, DC 20024             | 38.88979 | \-77.03291 |
 
 Pull OSM map data for DC. Use coordinates pulled from the
 openstreemap.org GUI (click export button)
@@ -42,23 +51,16 @@ Plot our points on our DC map
 ``` r
 library(ggplot2)
 library(ggrepel)
-  
 autoplot(dc_map.latlng) +
-  theme_bw() +
-  theme(axis.line = element_blank(),
-              axis.ticks=element_blank(),
+  theme_minimal() +
+  theme(      axis.text.y=element_blank(),
               axis.title=element_blank(),
-              axis.text.y=element_blank(),
               axis.text.x=element_blank(),
-              panel.border = element_blank(),
-              panel.grid.major = element_blank(),
-              panel.grid.minor = element_blank(),
-              panel.background = element_rect(fill = "white"),
-              plot.margin = unit(c(-8, -1, -8, -1), "cm"),
-              legend.position = "none") +
+              plot.margin = unit(c(0, 0, 0, 0), "cm")
+              ) +
   geom_point(data=coordinates, aes(x=long, y=lat), color="navy", size=4, alpha=1) +
   geom_label_repel(data=coordinates,
         aes(label=name,x=long, y=lat),show.legend=F,box.padding=.5)
 ```
 
-![](tidygeocoder-demo_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
+![](tidygeocoder-demo_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
