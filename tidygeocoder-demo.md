@@ -19,7 +19,7 @@ dc_addresses <- tribble( ~name,~addr,
 
 # Geocode the addresses with the US Census geocoder
 coordinates <- dc_addresses %>%
-  tidygeocoder::geocode(addr)
+  geocode(addr)
 ```
 
 ``` r
