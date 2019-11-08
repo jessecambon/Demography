@@ -43,7 +43,7 @@ dc_map.latlng <- openproj(dc_map)
 
 Plot our points on our DC map
 
-```{r,fig.width=10,fig.height=4}
+```{r,fig.width=14,fig.height=6}
 library(ggplot2)
 library(ggrepel)
 autoplot(dc_map.latlng) +
@@ -55,6 +55,6 @@ autoplot(dc_map.latlng) +
               ) +
   geom_point(data=coordinates, aes(x=long, y=lat), color="navy", size=4, alpha=1) +
   geom_label_repel(data=coordinates,
-        aes(label=name,x=long, y=lat),show.legend=F,box.padding=.5)
+        aes(label=name,x=long, y=lat),show.legend=F,box.padding=.5,size = 5)
 
 ```

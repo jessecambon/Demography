@@ -60,7 +60,7 @@ autoplot(dc_map.latlng) +
               ) +
   geom_point(data=coordinates, aes(x=long, y=lat), color="navy", size=4, alpha=1) +
   geom_label_repel(data=coordinates,
-        aes(label=name,x=long, y=lat),show.legend=F,box.padding=.5)
+        aes(label=name,x=long, y=lat),show.legend=F,box.padding=.5,size = 5)
 ```
 
 ![](tidygeocoder-demo_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
